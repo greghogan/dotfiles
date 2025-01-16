@@ -1,0 +1,6 @@
+.claude/
+.codex
+.envrc
+.idea/
+cmake-build-*/
+**/.nfs*

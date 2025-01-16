@@ -1,0 +1,86 @@
+[user]
+	name = Greg Hogan
+	email = code@greghogan.com
+
+[alias]
+	st = status
+
+	l = "!. ~/.githelpers && pretty_git_log"
+	la = "!git l --all"
+	lr = "!git l -30"
+	lra = "!git lr --all"
+	ls = "log --show-signature"
+	merge-pull-request="!m() { for id in $(git cherry HEAD pulls/pr/$1 | cut -c2-); do git cherry-pick --signoff $id; done; }; m"
+
+[commit]
+	verbose = true
+	gpgsign = false
+
+[core]
+	editor = vim --clean
+	excludesfile = ~/.gitignore
+	pager = delta
+	sshCommand = /usr/bin/ssh
+
+[delta]
+	colorMoved = default
+	hyperlinks = true
+	hyperlinks-file-link-format = "idea://open?file={path}&line={line}"
+	line-numbers = true
+	navigate = true
+
+[diff]
+	colorMoved = plain
+	mnemonicPrefix = true
+	renames = true
+
+[filter "7z"]
+	clean = sh -c 'F=/dev/shm/7zclean_$$; cat > "$F.in" && 7z a -t7z -m0=lzma2 -mx=9 -md=512m -mfb=273 -bso0 -bsp0 "$F.7z" "$F.in" >/dev/null 2>&1 && cat "$F.7z"; rm -f "$F.in" "$F.7z"'
+	smudge = sh -c 'F=/dev/shm/7zsmudge_$$; mkdir -p "$F" && cat > "$F/a.7z" && 7z e -bso0 -bsp0 -o"$F" "$F/a.7z" >/dev/null 2>&1 && cat "$F"/*in* 2>/dev/null; rm -rf "$F"'
+	required = true
+
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+
+[filter "zpaq"]
+	clean = sh -c 'F=/dev/shm/zclean_$$; cat > "$F.in" && zpaq a "$F.zpaq" "$F.in" -m5 -t0 >/dev/null 2>&1 && cat "$F.zpaq"; rm -f "$F.in" "$F.zpaq"'
+	smudge = sh -c 'F=/dev/shm/zsmudge_$$; mkdir -p "$F" && cat > "$F/a.zpaq" && zpaq x "$F/a.zpaq" -to "$F" -t0 >/dev/null 2>&1 && cat "$F"/*in* 2>/dev/null; rm -rf "$F"'
+	required = true
+
+
+[filter "zstd"]
+	clean = zstd -q -c -T0 --ultra -22 --long=31
+	smudge = zstd -d -q -c
+	required = true
+
+[help]
+	autocorrect = 1
+
+[http]
+	sslverify = false
+
+[init]
+	defaultBranch = main
+
+[interactive]
+	diffFilter = delta --color-only
+
+[maintenance]
+	repo = /efs/devel/guix/master
+
+[merge]
+	conflictStyle = zdiff3
+
+[sendemail]
+	smtpServer = smtp.gmail.com
+	smtpUser = code@greghogan.com
+	smtpEncryption = tls
+	smtpServerPort = 587
+	smtpPass = wsvowlxqmyrklkzk
+	annotate = true
+
+[tag]
+	sort = version:refname
