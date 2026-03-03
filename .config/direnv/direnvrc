@@ -1,0 +1,35 @@
+layout_rust_ebs() {
+  # local ebs_base="/volumes/nvme1n1/rust-targets"
+  local ebs_base="$HOME/.cache/rust-targets"
+
+  # Include a sanitized CPU model name so that changing instance type
+  # (which changes target-cpu=native) forces a full rebuild in a fresh dir.
+  local cpu_key
+  cpu_key=$(grep -m1 'model name' /proc/cpuinfo \
+    | sed 's/.*: //;s/ @.*//;s/(R)//g;s/(TM)//g' \
+    | tr -s ' ' '_' \
+    | sed 's/__*/_/g;s/^_//;s/_$//')
+
+  export CARGO_TARGET_DIR="$ebs_base/${PWD##*/}/${cpu_key}"
+  mkdir -p "$CARGO_TARGET_DIR"
+}
+
+layout_rustup() {
+  local rustup_guix_bin="$HOME/.config/direnv/rustup-guix/bin"
+  PATH_add "$rustup_guix_bin"
+}
+
+layout_system_gcc() {
+
+  local system_toolchain_bin="$HOME/.config/direnv/system-toolchain/bin"
+
+  # Keep Guix on PATH for tools such as `cross`, but remove its compiler and
+  # linker search paths from this system-toolchain environment.
+  unset C_INCLUDE_PATH CPLUS_INCLUDE_PATH CPATH LIBRARY_PATH
+  unset OBJC_INCLUDE_PATH OBJCPLUS_INCLUDE_PATH
+
+  export CC="$system_toolchain_bin/gcc"
+  export CXX="$system_toolchain_bin/g++"
+  export CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER="$system_toolchain_bin/gcc"
+  PATH_add "$system_toolchain_bin"
+}
